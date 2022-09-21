@@ -16,9 +16,8 @@ return new class extends Migration
         Schema::create('chat_sessions', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('user_id');
-            $table->varchar('title');
+            $table->text('title');
             $table->timestamps();
-
             $table->foreign('user_id')->references('id')->on('users');
         });
     }

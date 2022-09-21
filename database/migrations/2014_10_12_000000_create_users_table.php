@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('username')->unique();
             $table->string('password');
             $table->string('name');
-            $table->enum('isLoggedIn', [0, 1])->default(0);
+            $table->enum('isLoggedIn', [0, 1]);
             $table->timestamps();
         });
     }
