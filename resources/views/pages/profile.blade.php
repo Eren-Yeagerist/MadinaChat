@@ -10,17 +10,25 @@
             <tr>
                 <td>Nama</td>
                 <td>:</td>
-                <td>John Doe</td>
+                <td>{{ $user->name }}</td>
             </tr>
             <tr>
                 <td>Username</td>
                 <td>:</td>
-                <td>johndoe</td>
+                <td>{{ $user->username }}</td>
             </tr>
             <tr>
                 <td>Status</td>
                 <td>:</td>
-                <td><span class="badge text-dark bg-warning">SISWA</span></td>
+                <td>
+                    @if (auth()->user()->role() == 'staff')
+                        <span class="badge bg-success">STAFF</span>
+                    @elseif (auth()->user()->role() == 'admin')
+                        <span class="badge bg-warning">ADMIN</span>
+                    @elseif (auth()->user()->role() == 'user')
+                        <span class="badge bg-primary">USER</span>
+                    @endif
+                </td>
             </tr>
             <tr>
                 <td>Last login</td>

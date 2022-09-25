@@ -18,8 +18,8 @@ return new class extends Migration
             $table->string('username')->unique();
             $table->string('password');
             $table->string('name');
-            $table->enum('role', ['ADMIN', 'STAFF', 'USER']);;
-            $table->enum('isLoggedIn', [0, 1]);
+            $table->tinyInteger('role')->default(0);
+            $table->tinyInteger('isLoggedIn')->default(0);
             $table->timestamps();
         });
     }

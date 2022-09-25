@@ -1,12 +1,13 @@
 @extends('layouts.main')
-@section('title'){{ 'Notification' }}@endsection
+@section('title'){{ 'Login' }}@endsection
 @section('content') 
     <div class="card m-auto w-50">
         <div class="card-header">
             <h5 class="card-title">Login</h5>
         </div>
         <div class="card-body">
-            <form>
+            <form action="{{ route('chat.validate') }}" method="POST">
+                @csrf
                 <div class="mb-3">
                     <label for="username" class="form-label">username</label>
                     <input type="text" name="username" class="form-control" id="username">
