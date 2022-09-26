@@ -1,7 +1,8 @@
 <?php
 
 namespace App\Http\Controllers;
-use App\Models\Chat;
+use App\Models\ChatSession;
+use App\Models\Rating;
 use App\Models\User;
 
 use Illuminate\Http\Request;
@@ -15,7 +16,24 @@ class ChatController extends Controller
 
     public function index()
     {
-        return view('index');
+        $chats = ChatSession::whereUserId(auth()->user()->id)->get();
+        return view('index', compact('chats'));
+    }
+
+    public function createSession()
+    {
+        return view('pages.create_session');
+    }
+
+    public function storeSession(Request $request)
+    {
+        $title = $request->title;
+        ChatSession::create([
+            'user_id' => auth()->user()->id,
+            'title' => $title,
+        ]);
+
+        return redirect()->route('chat.home')->with('success', 'Chat session created successfully');
     }
 
     public function chat()
@@ -25,18 +43,18 @@ class ChatController extends Controller
 
     public function ratings()
     {
-        return view('ratings');
+        $ratings = Rating::whereUserId(auth()->user()->id)->get();
+        return view('pages.ratings', compact('ratings'));
     }
 
     public function notifications()
     {
-        return view('notifications');
+        return view('pages.notifications');
     }
 
     public function profile()
     {
         $user = User::find(auth()->user()->id);
-        // dd($user);
         return view('pages.profile', compact('user'));
     }
 

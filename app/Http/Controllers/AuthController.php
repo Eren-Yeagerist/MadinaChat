@@ -23,7 +23,6 @@ class AuthController extends Controller
 
         if (auth()->attempt($credentials)) {
             $request->session()->regenerate();
-            
             return redirect()->route('chat.home');
         }
 

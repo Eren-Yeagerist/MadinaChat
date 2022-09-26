@@ -16,7 +16,7 @@ class AuthAccess
      */
     public function handle(Request $request, Closure $next, $role)
     {
-
+        // dd($role." | ".auth()->user()->role());
         if (auth()->user()->role() == $role) {
             
             return $next($request);

@@ -47,4 +47,19 @@ class User extends Authenticatable
     // protected $casts = [
     //     'email_verified_at' => 'datetime',
     // ];
+
+    public function chats()
+    {
+        return $this->hasMany(ChatSession::class);
+    }
+
+    public function ratings()
+    {
+        return $this->hasMany(Rating::class);
+    }
+
+    public function messages()
+    {
+        return $this->hasMany(Message::class);
+    }
 }

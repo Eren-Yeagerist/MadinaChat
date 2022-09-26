@@ -15,7 +15,13 @@
                         <a class="nav-link" href="{{ route('chat.home') }}">Chat</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ route('chat.ratings') }}">Ratings</a>
+                        @if (auth()->user()->role() == 'staff')
+                            <a class="nav-link" href="{{ route('staff.chat.ratings') }}">Ratings</a>
+                        @elseif (auth()->user()->role() == 'admin')
+                            <a class="nav-link" href="{{ route('admin.chat.ratings') }}">Ratings</a>
+                        @elseif (auth()->user()->role() == 'user')
+                            <a class="nav-link" href="{{ route('user.chat.ratings') }}">Ratings</a>
+                        @endif
                     </li>
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
@@ -33,7 +39,13 @@
                             <li>
                                 <hr class="dropdown-divider">
                             </li>
-                            <li><a class="dropdown-item" href="{{ route('chat.notifications') }}">Selengkapnya</a></li>
+                            <li>
+                                @if (auth()->user()->role() == 'staff')
+                                    <a class="dropdown-item" href="{{ route('staff.chat.notifications') }}">Selengkapnya</a>
+                                @elseif (auth()->user()->role() == 'user')
+                                    <a class="dropdown-item" href="{{ route('user.chat.notifications') }}">Selengkapnya</a>
+                                @endif
+                            </li>
                         </ul>
                     </li>
                 </ul>

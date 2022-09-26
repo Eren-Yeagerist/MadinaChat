@@ -18,6 +18,8 @@ return new class extends Migration
             $table->unsignedBigInteger('user_id');
             $table->text('title');
             $table->text('slug')->unique();
+            $table->tinyInteger('status')->default(0);
+            $table->tinyInteger('status_rating')->default(0);
             $table->timestamps();
             $table->foreign('user_id')->references('id')->on('users');
         });
