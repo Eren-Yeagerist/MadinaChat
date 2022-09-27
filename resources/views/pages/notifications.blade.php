@@ -6,10 +6,10 @@
             <h3>Notification <i class="fa-regular fa-bell"></i></h3>
         </div>
         <div class="p-2">
-            <button type="button" class="btn btn-secondary active position-relative">
+            <a type="button" class="btn btn-secondary active position-relative">
                 Refresh
                 <span><i class="fa-solid fa-arrows-rotate"></i></span>
-            </button>
+            </a>
         </div>
     </div>
 

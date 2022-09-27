@@ -36,9 +36,9 @@ class ChatController extends Controller
         return redirect()->route('chat.home')->with('success', 'Chat session created successfully');
     }
 
-    public function chat()
+    public function showChat(ChatSession $chat)
     {
-        return view('chat');
+        return view('pages.chat', compact('chat'));
     }
 
     public function ratings()

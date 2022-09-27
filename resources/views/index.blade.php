@@ -24,7 +24,7 @@
     @endif
 
     @foreach ($chats as $item)    
-        <a href="" class="text-decoration-none text-dark">
+        <a href="{{ route('user.chat.chat', $item) }}" class="text-decoration-none text-dark">
             <div class="card mb-3">
                 <div class="card-header">
                     {{ $item->user->name }}
