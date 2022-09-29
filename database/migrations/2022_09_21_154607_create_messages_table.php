@@ -18,6 +18,7 @@ return new class extends Migration
             $table->unsignedBigInteger('user_id');
             $table->unsignedBigInteger('session_id');
             $table->text('message');
+            $table->softDeletes($column = 'deleted_at', $precision = 0);
             $table->timestamps();
 
             $table->foreign('user_id')->references('id')->on('users');

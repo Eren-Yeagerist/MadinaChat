@@ -12,11 +12,6 @@ class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
     protected $fillable = [
         'name',
         'username',
@@ -24,11 +19,6 @@ class User extends Authenticatable
         'role',
     ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var array<int, string>
-     */
     protected $hidden = [
         'password',
     ];
@@ -39,16 +29,16 @@ class User extends Authenticatable
         return $arr[$this->role];
     }
 
-    /**
-     * The attributes that should be cast.
-     *
-     * @var array<string, string>
-     */
+    public function isAllowed()
+    {
+        return $this->role != 2;
+    }
+
     // protected $casts = [
     //     'email_verified_at' => 'datetime',
     // ];
 
-    public function chats()
+    public function chatSession()
     {
         return $this->hasMany(ChatSession::class);
     }

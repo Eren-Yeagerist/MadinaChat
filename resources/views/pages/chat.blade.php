@@ -6,54 +6,78 @@
             <h3>| {{ $chat->title }} | <i class="fa-solid fa-comment"></i></h3>
         </div>
         <div class="p-2">
-            <button type="button" class="btn btn-secondary active position-relative">
+            <a href="{{ route('chat.chat', $chat) }}" class="btn btn-secondary active position-relative">
                 Refresh
                 <span><i class="fa-solid fa-arrows-rotate"></i></span>
-            </button>
+            </a>
         </div>
     </div>
 
     <div class="chat border p-3">
-        <div class="card border-success rounded-0 mb-2">
-            <div class="card-body">
-                <b>Andi Manaf</b> | <small>2022-09-23</small>
-                <p class="card-text">Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quae.<br><a href=""
-                        class="text-decoration-none badge bg-danger">delete</a></p>
+        {{-- Chat Timeline --}}
+        @foreach ($messages as $message)
+            @if (auth()->user()->id == $message->user_id)
+                <div class="card border-success rounded-0 mb-2 w-75 float-end">
+            @else
+                <div class="card border-primary rounded-0 mb-2 w-75 float-left">
+            @endif
+                <div class="card-body" id="msg{{ $message->id }}">
+                    <b>{{ $message->user->name }}</b> | <small>{{ $message->user->role() }}</small> | <small>{{ $message->created_at }}</small>
+                    @if ($message->deleted_at == null)
+                        <p class="card-text">
+                            {{ $message->message }}
+                            @if (auth()->user()->id == $message->user_id)
+                                <br><a href="{{ route('chat.message.delete', $message->id) }}" onclick="return confirm('Are you sure')" class="text-decoration-none badge bg-danger">delete</a>
+                            @endif
+                        </p>
+                    @else 
+                        <p class="card-text">----------------- Message has been deleted -----------------</p>
+                    @endif
+                </div>
             </div>
-        </div>
-        
-        {{-- <div class="card border-primary rounded-0 mb-2">
-            <div class="card-body">
-                <b>Admin</b> | <small>2022-09-23</small>
-                <p class="card-text">Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quae.</p>
-            </div>
-        </div> --}}
-        
+        @endforeach
     </div>
 
     <div class="col-md-auto position-absolute bottom-0 w-50 mb-4">
         <div class="d-flex justify-content-center">
-            <div class="w-100">
-                @csrf
-                <input type="hidden" name="session_id" value="{{ $chat->id }}">
-                <input type="hidden" name="user_id" value="{{ auth()->user()->id }}">
-                <textarea name="msg" id="msg" class="form-control mb-2" cols="30" rows="5" required></textarea>
-                <div id="validation" class="invalid-feedback">
-                    Please enter a message.
+            @if ($chat->status()['status'] != 'finish')
+                <div class="w-100">
+                    <textarea name="msg" id="msg" class="form-control mb-2" cols="30" rows="5" required></textarea>
+                    <div id="validation" class="invalid-feedback">
+                        Please enter a message.
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-lg" id="send_msg">
+                        <span>send</span>
+                    </button>
                 </div>
-                {{-- <input type="submit" name="" id=""> --}}
-                <button class="btn btn-primary btn-lg" id="send_msg">Send</button>
-            </div>
+            @else
+                <div class="w-100 mb-5">
+                    <div class="alert alert-warning" role="alert">
+                        <h4 class="alert-heading">Chat session is finished! </h4>
+                        @if (auth()->user()->role() == 'staff')
+                            <a href="" class="btn btn-success active position-relative">
+                                Unlock
+                                <i class="fa-sharp fa-solid fa-lock-open"></i>
+                            </a>
+                        @endif
+                    </div>
+                </div>
+            @endif
         </div>
     </div>
     
     <script>
+        let lastMsgId = "msg{{ $messages->last()->id }}";
+        let lastMsg = document.getElementById(lastMsgId);
+        lastMsg.scrollIntoView({ behavior: 'smooth' })
+
         $(function() {
             const Http = window.axios;
             const Echo = window.Echo;
             const name = "{{ Auth::user()->name }}";
             const user_id = "{{ Auth::user()->id }}";
             const chat_id = "{{ $chat->id }}";
+            const status = "{{ $chat->status }}";
             const msg = $('#msg');
 
             $('#msg').on('keyup', function() {
@@ -61,12 +85,17 @@
             });
 
             $('#send_msg').click(function() {
+                $('#send_msg').prop('disabled', true);
+                $('#send_msg').html('sending...<span class="spinner-grow spinner-grow-sm" id="spinner" role="status" aria-hidden="true"></span>')
+
                 if (msg.val() == '') {
                     msg.addClass('is-invalid');
                 } else {
                     Http.post("{{ route('chat.send') }}", {
+                        'name' : name,
                         'user_id': user_id,
                         'session_id': chat_id,
+                        'status' : status,
                         'message' : msg.val()
                     }).then(() => {
                         msg.val('');
@@ -74,9 +103,34 @@
                 }
             });
             
+            
             let channel = Echo.channel('channel-chat');
             channel.listen('ChatEvent', (e) => {
-                
+                let color = 'primary float-start';
+                let button = '';
+                let flag = (e.message.user_id == "{{ Auth::user()->id }}" ? true : false);
+                if (flag) {
+                    color = 'success float-end';
+                    button = `<br><a href="{{ route('chat.message.delete', $message->id) }}" class="text-decoration-none badge bg-danger">delete</a>`;
+                } 
+
+                $('.chat').append(`
+                    <div class="card border-${color} rounded-0 mb-2 w-75" id="msg${e.message.id}">
+                        <div class="card-body">
+                            <b>${e.message.name}</b> | <small>${e.message.role}</small> | <small>${e.message.created_at}</small>
+                            <p class="card-text">
+                                ${e.message.message}
+                                ${button}
+                            </p>
+                        </div>
+                    </div>
+                `);
+
+                $('#send_msg').prop('disabled', false);
+                $('#send_msg').html('send');
+
+                lastMsg = document.getElementById("msg" + e.message.id);
+                lastMsg.scrollIntoView({ behavior: 'smooth' })
             });
         });
     </script>

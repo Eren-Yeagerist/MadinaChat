@@ -11,6 +11,6 @@ class Rating extends Model
 
     public function chatSession()
     {
-        return $this->belongsTo(ChatSession::class, 'id');
+        return $this->belongsTo(ChatSession::class, 'session_id');
     }
 }

@@ -20,11 +20,15 @@
             {{ session('success') }}
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
-        
+    @elseif (session('danger'))
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            {{ session('danger') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
     @endif
 
     @foreach ($chats as $item)    
-        <a href="{{ route('user.chat.chat', $item) }}" class="text-decoration-none text-dark">
+        <a href="{{ route('chat.chat', $item) }}" class="text-decoration-none text-dark">
             <div class="card mb-3">
                 <div class="card-header">
                     {{ $item->user->name }}
