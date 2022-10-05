@@ -15,6 +15,8 @@ class ChatSession extends Model
         'user_id',
         'title',
         'slug',
+        'status',
+        'status_rating'
     ];
     
     public function user()
@@ -30,9 +32,8 @@ class ChatSession extends Model
     public function status()
     {
         $arr = [
-            array("status" => "waiting", "color" => "text-bg-warning"), 
             array("status" => "active", "color" => "text-bg-success"), 
-            array("status" => "finish", "color" => "text-bg-primary"), 
+            array("status" => "finished", "color" => "text-bg-primary"), 
         ];
         return $arr[$this->status];
     }

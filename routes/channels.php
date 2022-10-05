@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Broadcast;
-
+use App\Models\Notification;
 /*
 |--------------------------------------------------------------------------
 | Broadcast Channels
@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Broadcast;
 |
 */
 
-Broadcast::channel('App.Models.User.{id}', function ($user, $id) {
-    return (int) $user->id === (int) $id;
+Broadcast::channel('notification.{reveicer}', function ($user, Notification $notification) {
+    return (int) $user->id === (int) $notification->receiver;
+    // return auth()->check();
 });

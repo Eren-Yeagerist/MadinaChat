@@ -6,10 +6,20 @@
             <h3>| {{ $chat->title }} | <i class="fa-solid fa-comment"></i></h3>
         </div>
         <div class="p-2">
+            @if ($chat->status()['status'] != 'finished')
+                <form class="form-inline" action="{{ route('user.chat.end', $chat) }}" method="post" enctype="multipart/form-data" onclick="return confirm('Are you sure to end this chat session')">
+                    @csrf 
+                    @method('PUT')
+                    <input type="submit" class="btn btn-danger" value="End chat session">
+                </form>
+                    
+            @endif
+
             <a href="{{ route('chat.chat', $chat) }}" class="btn btn-secondary active position-relative">
                 Refresh
                 <span><i class="fa-solid fa-arrows-rotate"></i></span>
             </a>
+
         </div>
     </div>
 
@@ -40,7 +50,7 @@
 
     <div class="col-md-auto position-absolute bottom-0 w-50 mb-4">
         <div class="d-flex justify-content-center">
-            @if ($chat->status()['status'] != 'finish')
+            @if ($chat->status()['status'] != 'finished')
                 <div class="w-100">
                     <textarea name="msg" id="msg" class="form-control mb-2" cols="30" rows="5" required></textarea>
                     <div id="validation" class="invalid-feedback">
@@ -51,11 +61,11 @@
                     </button>
                 </div>
             @else
-                <div class="w-100 mb-5">
+                <div class="w-100 mb-4">
                     <div class="alert alert-warning" role="alert">
                         <h4 class="alert-heading">Chat session is finished! </h4>
                         @if (auth()->user()->role() == 'staff')
-                            <a href="" class="btn btn-success active position-relative">
+                            <a href="{{ route('chat.chat.unlock', $chat->slug) }}" class="btn btn-success active position-relative">
                                 Unlock
                                 <i class="fa-sharp fa-solid fa-lock-open"></i>
                             </a>
@@ -67,10 +77,13 @@
     </div>
     
     <script>
-        let lastMsgId = "msg{{ $messages->last()->id }}";
-        let lastMsg = document.getElementById(lastMsgId);
-        lastMsg.scrollIntoView({ behavior: 'smooth' })
-
+        let lastMsgId = "msg{{ (!$messages->isEmpty()) ? $messages->last()->id : 0 }}";
+        
+        if (lastMsgId != 'msg0') {
+            let lastMsg = document.getElementById(lastMsgId);
+            lastMsg.scrollIntoView({ behavior: 'smooth' })
+        }
+       
         $(function() {
             const Http = window.axios;
             const Echo = window.Echo;
@@ -90,6 +103,9 @@
 
                 if (msg.val() == '') {
                     msg.addClass('is-invalid');
+                    $('#send_msg').prop('disabled', false);
+                    $('#send_msg').html('send');
+
                 } else {
                     Http.post("{{ route('chat.send') }}", {
                         'name' : name,
@@ -106,32 +122,37 @@
             
             let channel = Echo.channel('channel-chat');
             channel.listen('ChatEvent', (e) => {
-                let color = 'primary float-start';
-                let button = '';
-                let flag = (e.message.user_id == "{{ Auth::user()->id }}" ? true : false);
-                if (flag) {
-                    color = 'success float-end';
-                    button = `<br><a href="{{ route('chat.message.delete', $message->id) }}" class="text-decoration-none badge bg-danger">delete</a>`;
-                } 
+                if (e.message.session_id == chat_id) {
+                    let idMsg = e.message.id;
+                    let color = 'primary float-start';
+                    let button = '';
+                    let flag = (e.message.user_id == "{{ Auth::user()->id }}" ? true : false);
 
-                $('.chat').append(`
-                    <div class="card border-${color} rounded-0 mb-2 w-75" id="msg${e.message.id}">
-                        <div class="card-body">
-                            <b>${e.message.name}</b> | <small>${e.message.role}</small> | <small>${e.message.created_at}</small>
-                            <p class="card-text">
-                                ${e.message.message}
-                                ${button}
-                            </p>
+                    if (flag) {
+                        color = 'success float-end';
+                        button = `<br><a href="{{ route('chat.message.delete', ($messages->isEmpty() != 1) ? $message->id : 0) }}" class="text-decoration-none badge bg-danger">delete</a>`;
+                    } 
+
+                    $('.chat').append(`
+                        <div class="card border-${color} rounded-0 mb-2 w-75" id="msg${e.message.id}">
+                            <div class="card-body">
+                                <b>${e.message.name}</b> | <small>${e.message.role}</small> | <small>${e.message.created_at}</small>
+                                <p class="card-text">
+                                    ${e.message.message}
+                                    ${button}
+                                </p>
+                            </div>
                         </div>
-                    </div>
-                `);
+                    `);
 
-                $('#send_msg').prop('disabled', false);
-                $('#send_msg').html('send');
+                    $('#send_msg').prop('disabled', false);
+                    $('#send_msg').html('send');
 
-                lastMsg = document.getElementById("msg" + e.message.id);
-                lastMsg.scrollIntoView({ behavior: 'smooth' })
+                    lastMsg = document.getElementById("msg" + e.message.id);
+                    lastMsg.scrollIntoView({ behavior: 'smooth' });
+                }
             });
         });
+        
     </script>
 @endsection

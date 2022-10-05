@@ -27,19 +27,26 @@
         </div>
     @endif
 
-    @foreach ($chats as $item)    
-        <a href="{{ route('chat.chat', $item) }}" class="text-decoration-none text-dark">
+    @foreach ($chats as $chat)    
+        <a href="{{ route('chat.chat', $chat) }}" class="text-decoration-none text-dark">
             <div class="card mb-3">
                 <div class="card-header">
-                    {{ $item->user->name }}
+                    {{ $chat->user->name }}
                 </div>
                 <div class="card-body">
                     <blockquote class="blockquote mb-0">
-                        <p>{{ $item->title }}</p>
+                        <p>{{ $chat->title }}</p>
                         <footer class="blockquote-footer">
-                            {{ $item->created_at }} | <span class="badge {{ $item->status()["color"] }}">{{ $item->status()["status"] }}</span>
-                             @if ($item->status_rating == 0)
-                                <span class="badge text-bg-warning">not rated</span>
+                            {{ $chat->created_at }} | <span class="badge {{ $chat->status()["color"] }}">{{ $chat->status()["status"] }}</span>
+                             @if ($chat->status_rating == 0 && $chat->status()["status"] == 'finished')
+                                
+                                @if (auth()->user()->role() == 'user')
+                                    <a href="{{ route('user.chat.rate', $chat->slug) }}">
+                                        <span class="badge text-bg-warning">give rating</span>
+                                    </a>
+                                @else
+                                    <span class="badge text-bg-warning">not rated</span>
+                                @endif
                              @endif  
                         </footer>
                     </blockquote>

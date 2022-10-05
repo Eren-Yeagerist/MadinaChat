@@ -22,7 +22,7 @@ class ChatSessionFactory extends Factory
             'user_id' => fake()->numberBetween(1, 20),
             'title' => $title,
             'slug' => $slug,
-            'status' => fake()->randomElement([0, 1, 2]),
+            'status' => fake()->randomElement([0]),
             'status_rating' => fake()->randomElement([0, 1]),
         ];
     }

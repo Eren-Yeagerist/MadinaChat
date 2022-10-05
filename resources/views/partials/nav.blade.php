@@ -15,21 +15,14 @@
                         <a class="nav-link" href="{{ route('chat.home') }}">Chat</a>
                     </li>
                     <li class="nav-item">
-                        @if (auth()->user()->role() == 'staff')
-                            <a class="nav-link" href="{{ route('staff.chat.ratings') }}">Ratings</a>
-                        @elseif (auth()->user()->role() == 'admin')
-                            <a class="nav-link" href="{{ route('admin.chat.ratings') }}">Ratings</a>
-                        @elseif (auth()->user()->role() == 'user')
-                            <a class="nav-link" href="{{ route('user.chat.ratings') }}">Ratings</a>
-                        @endif
+                        <a class="nav-link" href="{{ route('chat.ratings') }}">Ratings</a>
                     </li>
-                    <li class="nav-item dropdown">
+                    <li class="nav-item dropdown" id="notification-dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
                             data-bs-toggle="dropdown" aria-expanded="false">
                             Notifications<span
-                                class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                                class="position-absolute top-0 start-100 translate-middle badge rounded-pill" id="notif">
                                 99+
-                                <span class="visually-hidden">unread messages</span>
                             </span>
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
@@ -40,11 +33,7 @@
                                 <hr class="dropdown-divider">
                             </li>
                             <li>
-                                @if (auth()->user()->role() == 'staff')
-                                    <a class="dropdown-item" href="{{ route('staff.chat.notifications') }}">Selengkapnya</a>
-                                @elseif (auth()->user()->role() == 'user')
-                                    <a class="dropdown-item" href="{{ route('user.chat.notifications') }}">Selengkapnya</a>
-                                @endif
+                                <a class="dropdown-item" href="{{ route('chat.notifications') }}">Selengkapnya</a>
                             </li>
                         </ul>
                     </li>
@@ -53,7 +42,6 @@
             <div class="dropdown">
                 <button class="btn btn-secondary active dropdown-toggle" type="button" data-bs-toggle="dropdown"
                     aria-expanded="false">
-                    {{-- <i class="fa-solid fa-right-from-bracket"></i> --}}
                     <i class="fa-solid fa-user"></i>
                 </button>
                 <ul class="dropdown-menu">
@@ -75,3 +63,26 @@
         @endauth
     </div>
 </nav>
+@auth
+    <script>
+        $(function() {
+            const Echo = window.Echo
+            const notif = $('#notif')
+            const notifDropdown = $('#notification-dropdown')
+
+            notifDropdown.click(function() {
+                notif.removeClass('bg-danger')
+            })
+
+            let notificationChannel = Echo.channel('notification.'+{{ auth()->user()->id }})
+            notificationChannel.listen('NotificationEvent', (e) => {
+                notif.addClass('bg-danger')
+                console.log(e)
+            });
+            // Echo.private('notification').listen('NotificationEvent', (e) => {
+            //     notif.addClass('bg-danger')
+            //     console.log("hjdasfkhadsk")
+            // });
+        })
+    </script>
+@endauth

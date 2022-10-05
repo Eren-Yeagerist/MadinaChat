@@ -4,6 +4,13 @@
     <div class="card m-auto w-50">
         <div class="card-header">
             <h5 class="card-title">Login</h5>
+            @if (session('danger'))
+                <br>
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    {{ session('danger') }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            @endif
         </div>
         <div class="card-body">
             <form action="{{ route('chat.validate') }}" method="POST">

@@ -26,9 +26,7 @@ class AuthController extends Controller
             return redirect()->route('chat.home');
         }
 
-        return back()->withErrors([
-            'username' => 'The provided credentials do not match our records.',
-        ]);
+        return redirect()->route('chat.login')->with('danger', 'Username or password not match');
     }
 
      public function logout()

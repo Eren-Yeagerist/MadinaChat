@@ -2,12 +2,15 @@
 
 namespace App\Http\Controllers;
 use App\Models\ChatSession;
+use App\Models\Notification;
 use App\Models\Message;
 use App\Models\Rating;
 use App\Models\User;
 
 use Illuminate\Http\Request;
 use App\Events\ChatEvent;
+use App\Events\NotificationEvent;
+use Illuminate\Support\Facades\DB;
 
 class ChatController extends Controller
 {
@@ -30,10 +33,10 @@ class ChatController extends Controller
 
     public function createSession()
     {
-        return view('pages.create_session');
+        return view('pages.create_chat_session');
     }
 
-    public function storeSession(Request $request)
+    public function storeChatSession(Request $request)
     {
         $title = $request->title;
         ChatSession::create([
@@ -44,7 +47,7 @@ class ChatController extends Controller
         return redirect()->route('chat.home')->with('success', 'Chat session created successfully');
     }
 
-    public function showChat(ChatSession $chat)
+    public function showChatSession(ChatSession $chat)
     {
         $flag = true;
         $role = auth()->user()->role();
@@ -52,7 +55,7 @@ class ChatController extends Controller
         if ($role == 'user' && $user_id != $chat->user_id) {
             $flag = false;
         }
-        
+
         if ($flag) {
             $messages = Message::where('session_id', $chat->id)->withTrashed()->get();
             return view('pages.chat', compact(['chat', 'messages']));
@@ -60,6 +63,31 @@ class ChatController extends Controller
             return redirect()->route('chat.home')->with('danger', 'You are not allowed to see chat session');
         }
     }
+
+    public function endChatSession(ChatSession $chat)
+    {
+        if ($chat->user_id == auth()->user()->id) {
+
+            $chat->update([
+                'status' => 1,
+            ]);
+
+            return redirect()->route('chat.home')->with('success', 'Chat session ended successfully');
+        } else {
+            return redirect()->route('chat.home')->with('error', 'You are not allowed to end this chat session');
+        }
+    }
+
+    public function unlockChatSession($slug)
+    {
+        $chat = ChatSession::where('slug', $slug)->first();
+        $chat->update([
+            'status' => 0,
+        ]);
+
+        return redirect()->route('chat.chat', $chat->slug)->with('success', 'Chat session unlocked successfully');
+    }
+
 
     public function sendMessage(Request $request)
     {
@@ -69,7 +97,7 @@ class ChatController extends Controller
             $user_id = auth()->user()->id;
 
             if ($role == 'user') {
-                if ($user_id != $request->user_id || $request->status == 2) {
+                if ($user_id != $request->user_id || $request->status == 1) {
                     $flag = false;
                 }
             }
@@ -98,6 +126,18 @@ class ChatController extends Controller
 
                 $msg['id'] = $inserted->id;
                 ChatEvent::dispatch($msg);
+
+                $notificationData = [
+                    'sender' => $user_id,
+                    'receiver' => 3,
+                    'message' => "Null",
+                    'url' => "NUll"
+                ];
+
+                // NotificationEvent::dispatch($notificationData);
+                $this->sendNotification($notificationData);
+                
+
             } else {
                 return redirect()->route('chat.home')->with('error', 'You are not allowed to send messages');
             }
@@ -134,9 +174,56 @@ class ChatController extends Controller
         return view('pages.ratings', compact('ratings'));
     }
 
+    public function rate(ChatSession $chat)
+    {
+        return view('pages.rate', compact('chat'));
+    }
+
+    public function storeRating(Request $request, $slug)
+    {
+        $request->validate([
+            'rate' => 'required',
+        ]);
+
+        $chat = ChatSession::find($slug);
+        $rating = $request->all();
+        $ratingValue = (int)$rating['rate'];
+        $user_id = auth()->user()->id; 
+
+        if ($ratingValue > 0 && $ratingValue <= 5) {
+            if ($user_id == $chat->user_id && $chat->status == 1 && $chat->status_rating == 0) {
+                DB::beginTransaction();
+
+                Rating::create([
+                    'user_id' => $user_id,
+                    'session_id' => $chat->id,
+                    'rating' => $ratingValue,
+                ]);
+
+                $chat->update([
+                    'status_rating' => 1,
+                ]);
+
+                DB::commit();
+            
+                return redirect()->route('chat.ratings')->with('success', 'Rating has been submitted');
+            } else {
+                return redirect()->route('chat.home')->with('danger', 'You are not allowed to rate this chat session');
+            }
+        } else {
+            return redirect()->route('chat.rate')->with('danger', 'Rating must be between 1 and 5');
+        }
+    }
+
     public function notifications()
     {
         return view('pages.notifications');
+    }
+
+    public function sendNotification($data)
+    {
+        Notification::create($data);
+        NotificationEvent::dispatch($data);
     }
 
     public function profile()
