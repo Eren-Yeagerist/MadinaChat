@@ -13,30 +13,21 @@
         </div>
     </div>
 
-    <a href="" class="text-decoration-none text-dark">
-        <div class="card border-warning rounded-0 mb-2">
-            <div class="card-body">
-                <b>Andi Manaf</b> | <small>2022-09-23</small>
-                <p class="card-text">Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quae.</p>
-            </div>
+    @if ($notifications->count() == 0)
+        <div class="alert alert-warning fade show" role="alert">
+            <strong>Warning!</strong> You don't have any notification.
         </div>
-    </a>
+    @else 
+        @foreach ($notifications as $notification)    
+            <a href="{{ $notification->url }}" class="text-decoration-none text-dark">
+                <div class="card border-warning rounded-0 mb-2">
+                    <div class="card-body">
+                        <b>{{ $notification->senderUser->name }}</b> | <small>{{ $notification->created_at }}</small>
+                        <p class="card-text">{!! $notification->message !!}</p>
+                    </div>
+                </div>
+            </a>
+        @endforeach
+    @endif
 
-    <a href="" class="text-decoration-none text-dark">
-        <div class="card border rounded-0 mb-2">
-            <div class="card-body">
-                <b>Andi Manaf</b> | <small>2022-09-23</small>
-                <p class="card-text">Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quae.</p>
-            </div>
-        </div>
-    </a>
-
-    <a href="" class="text-decoration-none text-dark">
-        <div class="notif card card border rounded-0 mb-2">
-            <div class="card-body">
-                <b>Andi Manaf</b> | <small>2022-09-23</small>
-                <p class="card-text">Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quae.</p>
-            </div>
-        </div>
-    </a>
 @endsection

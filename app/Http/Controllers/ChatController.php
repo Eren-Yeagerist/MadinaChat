@@ -21,12 +21,18 @@ class ChatController extends Controller
 
     public function index()
     {
-        $chats = ChatSession::all();
+        $chats = ChatSession::latest();
         $role = auth()->user()->role();
 
         if ($role == 'user') {
-            $chats = ChatSession::whereUserId(auth()->user()->id)->get();
+            $chats = ChatSession::whereUserId(auth()->user()->id);
         }
+
+        if (request('keyword')) {
+            $chats = $chats->where('title', 'like', '%' . request('keyword') . '%');
+        }
+
+        $chats = $chats->get();
 
         return view('index', compact('chats'));
     }
@@ -128,15 +134,11 @@ class ChatController extends Controller
                 ChatEvent::dispatch($msg);
 
                 $notificationData = [
-                    'sender' => $user_id,
-                    'receiver' => 3,
-                    'message' => "Null",
-                    'url' => "NUll"
+                    'session_id' => $request->session_id,
+                    'slug' => $request->slug,
                 ];
 
-                // NotificationEvent::dispatch($notificationData);
-                $this->sendNotification($notificationData);
-                
+                $this->sendNotification($notificationData);                
 
             } else {
                 return redirect()->route('chat.home')->with('error', 'You are not allowed to send messages');
@@ -170,7 +172,12 @@ class ChatController extends Controller
 
     public function ratings()
     {
-        $ratings = Rating::whereUserId(auth()->user()->id)->get();
+        $ratings = Rating::latest()->get();
+        if (auth()->user()->role() == 'user') {
+            $ratings = Rating::whereUserId(auth()->user()->id)
+                        ->latest()
+                        ->get();
+        } 
         return view('pages.ratings', compact('ratings'));
     }
 
@@ -217,13 +224,36 @@ class ChatController extends Controller
 
     public function notifications()
     {
-        return view('pages.notifications');
+        $notifications = Notification::with('senderUser')->whereRecipient(auth()->user()->id)->latest()->get();
+        return view('pages.notifications', compact('notifications'));
     }
 
     public function sendNotification($data)
     {
-        Notification::create($data);
-        NotificationEvent::dispatch($data);
+        $sender = auth()->user()->id;
+        $senderName = auth()->user()->name;
+        $slug = $data['slug'];
+
+        $data = Message::where('session_id', $data['session_id'])
+                ->distinct()
+                ->get(['user_id']);
+
+        $notificationData = [
+            'sender' => $sender,
+            'recipient' => 0,
+            'message' => "New message from <b>$senderName</b> in chat session <b>$slug</b>",
+            'url' => route('chat.chat', $slug),
+        ];
+
+        foreach ($data as $value) {
+            if ($value->user_id != $sender) {
+                $notificationData['recipient'] = $value->user_id;
+                Notification::create($notificationData);
+                NotificationEvent::dispatch($value->user_id);
+            }
+        }
+
+        // Notification::create($data);
     }
 
     public function profile()

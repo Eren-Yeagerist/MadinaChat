@@ -22,18 +22,18 @@
                             data-bs-toggle="dropdown" aria-expanded="false">
                             Notifications<span
                                 class="position-absolute top-0 start-100 translate-middle badge rounded-pill" id="notif">
-                                99+
+                                there are unread notifications
                             </span>
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                            <li><a class="dropdown-item" href="#">Action</a></li>
+                            {{-- <li><a class="dropdown-item" href="#">Action</a></li>
                             <li><a class="dropdown-item" href="#">Another action fajdskljfklasdjfkl asjdklfjasdklj</a>
-                            </li>
+                            </li> --}}
                             <li>
                                 <hr class="dropdown-divider">
                             </li>
                             <li>
-                                <a class="dropdown-item" href="{{ route('chat.notifications') }}">Selengkapnya</a>
+                                <a class="dropdown-item" href="{{ route('chat.notifications') }}">Liat notifikasi</a>
                             </li>
                         </ul>
                     </li>
@@ -77,7 +77,6 @@
             let notificationChannel = Echo.channel('notification.'+{{ auth()->user()->id }})
             notificationChannel.listen('NotificationEvent', (e) => {
                 notif.addClass('bg-danger')
-                console.log(e)
             });
             // Echo.private('notification').listen('NotificationEvent', (e) => {
             //     notif.addClass('bg-danger')

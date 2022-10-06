@@ -9,26 +9,32 @@
         </div>
     @endif
 
-    @foreach ($ratings as $item)    
-        <a href="" class="text-decoration-none text-dark">
-            <div class="card mb-3">
-                <div class="card-header">
-                    @for ($i = 1; $i <= 5; $i++)
-                        @if ($i <= $item->rating)
-                            <span class="fa fa-star checked"></span>
-                        @else
-                            <span class="fa fa-star"></span>
-                        @endif
-                    @endfor
+    @if ($ratings->count() == 0)
+        <div class="alert alert-warning fade show" role="alert">
+            <strong>Warning!</strong> You don't have any rating.
+        </div>
+    @else 
+        @foreach ($ratings as $item)    
+            <a href="" class="text-decoration-none text-dark">
+                <div class="card mb-3">
+                    <div class="card-header">
+                        @for ($i = 1; $i <= 5; $i++)
+                            @if ($i <= $item->rating)
+                                <span class="fa fa-star checked"></span>
+                            @else
+                                <span class="fa fa-star"></span>
+                            @endif
+                        @endfor
+                    </div>
+                    <div class="card-body">
+                        <blockquote class="blockquote mb-0">
+                            <p>{{ $item->chatSession->title }}</p>
+                            <footer class="blockquote-footer"> {{ $item->chatSession->created_at }} <i class="fa-solid fa-arrow-right"></i> {{ $item->chatSession->updated_at }} </footer>
+                        </blockquote>
+                    </div>
                 </div>
-                <div class="card-body">
-                    <blockquote class="blockquote mb-0">
-                        <p>{{ $item->chatSession->title }}</p>
-                        <footer class="blockquote-footer"> {{ $item->chatSession->created_at }} <i class="fa-solid fa-arrow-right"></i> {{ $item->chatSession->updated_at }} </footer>
-                    </blockquote>
-                </div>
-            </div>
-        </a>
-    @endforeach
+            </a>
+        @endforeach
+    @endif
 
 @endsection

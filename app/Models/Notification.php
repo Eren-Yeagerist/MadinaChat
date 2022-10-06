@@ -11,18 +11,18 @@ class Notification extends Model
 
     protected $fillable = [
         'sender',
-        'receiver',
+        'recipient',
         'message',
         'url',
     ];
 
-    public function sender()
+    public function senderUser()
     {
         return $this->belongsTo(User::class, 'sender');
     }
 
-    public function receiver()
+    public function recipientUser()
     {
-        return $this->belongsTo(User::class, 'receiver');
+        return $this->belongsTo(User::class, 'recipient');
     }
 }

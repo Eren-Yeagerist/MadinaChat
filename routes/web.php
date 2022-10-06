@@ -19,6 +19,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/chat/{chat:slug}/unlock', [ChatController::class, 'unlockChatSession'])->name('chat.chat.unlock');
     Route::get('/chat/{chat:id}/delete', [ChatController::class, 'deleteMessage'])->name('chat.message.delete');
     Route::get('/ratings', [ChatController::class, 'ratings'])->name('chat.ratings');
+    Route::get('hoho/{id}', [ChatController::class, 'sendNotification']);
     Route::get('/notifications', [ChatController::class, 'notifications'])->name('chat.notifications');
 });
 

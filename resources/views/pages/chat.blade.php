@@ -90,6 +90,7 @@
             const name = "{{ Auth::user()->name }}";
             const user_id = "{{ Auth::user()->id }}";
             const chat_id = "{{ $chat->id }}";
+            const chat_slug = "{{ $chat->slug }}";
             const status = "{{ $chat->status }}";
             const msg = $('#msg');
 
@@ -112,6 +113,7 @@
                         'user_id': user_id,
                         'session_id': chat_id,
                         'status' : status,
+                        'slug' : chat_slug,
                         'message' : msg.val()
                     }).then(() => {
                         msg.val('');

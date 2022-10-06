@@ -32,6 +32,6 @@ class NotificationEvent implements ShouldBroadcast
      */
     public function broadcastOn()
     {
-        return new Channel('notification.'.$this->notification['receiver']);
+        return new Channel('notification.'.$this->notification);
     }
 }
