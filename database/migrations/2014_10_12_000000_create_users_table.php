@@ -19,7 +19,6 @@ return new class extends Migration
             $table->string('password');
             $table->string('name');
             $table->tinyInteger('role')->default(0);
-            $table->tinyInteger('isLoggedIn')->default(0);
             $table->timestamps();
         });
     }

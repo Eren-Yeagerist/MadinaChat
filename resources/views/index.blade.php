@@ -9,7 +9,7 @@
             
             @if (auth()->user()->role() == 'user')
                 <a href="{{ route('user.chat.create') }}" type="button" class="btn btn-secondary active position-relative">
-                    Mulai Chat
+                    Start chat session
                     <span><i class="fa-solid fa-plus"></i></span>
                 </a>
             @endif

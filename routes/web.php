@@ -21,6 +21,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/ratings', [ChatController::class, 'ratings'])->name('chat.ratings');
     Route::get('hoho/{id}', [ChatController::class, 'sendNotification']);
     Route::get('/notifications', [ChatController::class, 'notifications'])->name('chat.notifications');
+    Route::post('/notifications/read', [ChatController::class, 'readNotification'])->name('chat.notifications.read');
 });
 
 Route::group(['prefix' => 'user', 'as' => 'user.',  'middleware' => ['auth', 'auth-access:user']], function() {
@@ -29,7 +30,6 @@ Route::group(['prefix' => 'user', 'as' => 'user.',  'middleware' => ['auth', 'au
     Route::put('/chat/{chat:slug}/end', [ChatController::class, 'endChatSession'])->name('chat.end');
     Route::get('/chat/{chat:slug}/rate', [ChatController::class, 'rate'])->name('chat.rate');
     Route::post('/chat/{chat}/rate', [ChatController::class, 'storeRating'])->name('chat.rate.store');
-    
 });
 
 

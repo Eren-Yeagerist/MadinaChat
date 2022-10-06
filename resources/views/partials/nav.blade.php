@@ -2,6 +2,7 @@
     <div class="container">
         <a class="navbar-brand" href="#">
             <img src="{{asset('icons/comment-alt.png')}}" alt="..." height="36">
+            Helpdesk chat
         </a>
         @auth
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
@@ -20,20 +21,19 @@
                     <li class="nav-item dropdown" id="notification-dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
                             data-bs-toggle="dropdown" aria-expanded="false">
-                            Notifications<span
-                                class="position-absolute top-0 start-100 translate-middle badge rounded-pill" id="notif">
-                                there are unread notifications
-                            </span>
+                            Notifications
+                            @if ($numNotifications->count() > 0)
+                                <span class="position-absolute top-0 start-100 translate-middle badge bg-danger rounded-pill" id="notif">
+                                    there are {{ $numNotifications->count() }} unread notifications
+                                </span>
+                            @endif
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                            {{-- <li><a class="dropdown-item" href="#">Action</a></li>
-                            <li><a class="dropdown-item" href="#">Another action fajdskljfklasdjfkl asjdklfjasdklj</a>
-                            </li> --}}
                             <li>
                                 <hr class="dropdown-divider">
                             </li>
                             <li>
-                                <a class="dropdown-item" href="{{ route('chat.notifications') }}">Liat notifikasi</a>
+                                <a class="dropdown-item" href="{{ route('chat.notifications') }}">All notification</a>
                             </li>
                         </ul>
                     </li>
@@ -66,22 +66,34 @@
 @auth
     <script>
         $(function() {
+            const Http = window.axios
             const Echo = window.Echo
             const notif = $('#notif')
             const notifDropdown = $('#notification-dropdown')
+            // const userId = {{ auth()->user()->id }}
+            let numNotifications = parseInt("{{$numNotifications->count()}}")
 
             notifDropdown.click(function() {
                 notif.removeClass('bg-danger')
+                notif.text('')
+                if (numNotifications > 0) {
+                    Http.post('/notifications/read')
+                        .then(res => {
+                            numNotifications = 0
+                        })
+                        .catch(err => {
+                            console.log(err)
+                        })
+                }
             })
 
             let notificationChannel = Echo.channel('notification.'+{{ auth()->user()->id }})
             notificationChannel.listen('NotificationEvent', (e) => {
                 notif.addClass('bg-danger')
+                notif.text('there are '+(++numNotifications)+' unread notifications')
+                // notif.text("there are unread notifications")
             });
-            // Echo.private('notification').listen('NotificationEvent', (e) => {
-            //     notif.addClass('bg-danger')
-            //     console.log("hjdasfkhadsk")
-            // });
+
         })
     </script>
 @endauth

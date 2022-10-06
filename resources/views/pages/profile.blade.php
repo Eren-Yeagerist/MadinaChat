@@ -8,7 +8,7 @@
         </thead>
         <tbody>
             <tr>
-                <td>Nama</td>
+                <td>Name</td>
                 <td>:</td>
                 <td>{{ $user->name }}</td>
             </tr>
@@ -30,11 +30,7 @@
                     @endif
                 </td>
             </tr>
-            <tr>
-                <td>Last login</td>
-                <td>:</td>
-                <td class="text-primary">2022-09-23</td>
-            </tr>
+
         </tbody>
     </table>
 @endsection

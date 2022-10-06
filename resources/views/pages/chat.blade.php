@@ -37,7 +37,7 @@
                         <p class="card-text">
                             {{ $message->message }}
                             @if (auth()->user()->id == $message->user_id)
-                                <br><a href="{{ route('chat.message.delete', $message->id) }}" onclick="return confirm('Are you sure')" class="text-decoration-none badge bg-danger">delete</a>
+                                <br><a href="{{ route('chat.message.delete', $message->id) }}" onclick="return confirm('Are you sure delete this message ?')" class="text-decoration-none badge bg-danger">delete</a>
                             @endif
                         </p>
                     @else 
@@ -132,7 +132,7 @@
 
                     if (flag) {
                         color = 'success float-end';
-                        button = `<br><a href="{{ route('chat.message.delete', ($messages->isEmpty() != 1) ? $message->id : 0) }}" class="text-decoration-none badge bg-danger">delete</a>`;
+                        button = `<br><a href="/chat/${idMsg}/delete" class="text-decoration-none badge bg-danger" onclick="return confirm('Are you sure delete this message ?')" >delete</a>`;
                     } 
 
                     $('.chat').append(`
