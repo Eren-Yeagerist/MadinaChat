@@ -7,7 +7,9 @@ use App\Models\Message;
 use App\Models\Rating;
 use App\Models\User;
 
-use Illuminate\Http\Request;
+use App\Http\Requests\ChatRequest;
+use App\Http\Requests\RatingRequest;
+use App\Http\Requests\MessageRequest;
 use App\Events\ChatEvent;
 use App\Events\NotificationEvent;
 use Illuminate\Support\Facades\DB;
@@ -42,7 +44,7 @@ class ChatController extends Controller
         return view('pages.create_chat_session');
     }
 
-    public function storeChatSession(Request $request)
+    public function storeChatSession(ChatRequest $request)
     {
         $title = $request->title;
         ChatSession::create([
@@ -95,7 +97,7 @@ class ChatController extends Controller
     }
 
 
-    public function sendMessage(Request $request)
+    public function sendMessage(MessageRequest $request)
     {
         if (auth()->user()->isAllowed()) {
             $flag = true;
@@ -109,11 +111,6 @@ class ChatController extends Controller
             }
 
             if ($flag) {
-                $request->validate([
-                    'user_id' => 'required',
-                    'session_id' => 'required',
-                    'message' => 'required'
-                ]);
 
                 $msg = [
                     'name' => $request->name,
@@ -141,10 +138,10 @@ class ChatController extends Controller
                 $this->sendNotification($notificationData);                
 
             } else {
-                return redirect()->route('chat.home')->with('error', 'You are not allowed to send messages');
+                return redirect()->route('chat.home')->with('error', 'You are not allowed to send messages in this chat session');
             }
         } else {
-            return redirect()->route('chat.home')->with('error', 'You are not allowed to send messages');
+            return redirect()->route('chat.home')->with('error', 'You are not allowed to send messages in this chat session');
         }   
     }
 
@@ -186,39 +183,31 @@ class ChatController extends Controller
         return view('pages.rate', compact('chat'));
     }
 
-    public function storeRating(Request $request, $slug)
+    public function storeRating(RatingRequest $request, $slug)
     {
-        $request->validate([
-            'rate' => 'required',
-        ]);
-
         $chat = ChatSession::find($slug);
         $rating = $request->all();
         $ratingValue = (int)$rating['rate'];
         $user_id = auth()->user()->id; 
 
-        if ($ratingValue > 0 && $ratingValue <= 5) {
-            if ($user_id == $chat->user_id && $chat->status == 1 && $chat->status_rating == 0) {
-                DB::beginTransaction();
+        if ($user_id == $chat->user_id && $chat->status == 1 && $chat->status_rating == 0) {
+            DB::beginTransaction();
 
-                Rating::create([
-                    'user_id' => $user_id,
-                    'session_id' => $chat->id,
-                    'rating' => $ratingValue,
-                ]);
+            Rating::create([
+                'user_id' => $user_id,
+                'session_id' => $chat->id,
+                'rating' => $ratingValue,
+            ]);
 
-                $chat->update([
-                    'status_rating' => 1,
-                ]);
+            $chat->update([
+                'status_rating' => 1,
+            ]);
 
-                DB::commit();
-            
-                return redirect()->route('chat.ratings')->with('success', 'Rating has been submitted');
-            } else {
-                return redirect()->route('chat.home')->with('danger', 'You are not allowed to rate this chat session');
-            }
+            DB::commit();
+        
+            return redirect()->route('chat.ratings')->with('success', 'Rating has been submitted');
         } else {
-            return redirect()->route('chat.rate')->with('danger', 'Rating must be between 1 and 5');
+            return redirect()->route('chat.home')->withErrors(['msg' => 'You are not allowed to rate this chat session']);
         }
     }
 
@@ -252,8 +241,6 @@ class ChatController extends Controller
                 NotificationEvent::dispatch($value->user_id);
             }
         }
-
-        // Notification::create($data);
     }
 
     public function profile()

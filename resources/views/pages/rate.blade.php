@@ -4,14 +4,6 @@
     <div class="card m-auto w-50">
         <div class="card-header">
             <h5 class="card-title">Give rating to [Chat Session] session</h5>
-            @if (session('danger'))
-                <br>
-                <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                    {{ session('danger') }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-            @endif
-
             @if ($errors->any())
                 <div class="alert warning">
                     <ul class="list-group">
