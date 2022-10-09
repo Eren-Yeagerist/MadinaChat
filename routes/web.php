@@ -7,6 +7,8 @@ use App\Events\ChatEvent;
 
 use Illuminate\Http\Request;
 
+Route::get('/register', [AuthController::class, 'register'])->name('chat.register');
+Route::post('/register', [AuthController::class, 'storeRegister'])->name('chat.register.store');
 Route::get('/login', [AuthController::class, 'login'])->name('chat.login');
 Route::post('/login', [AuthController::class, 'validateUser'])->name('chat.validate');
 Route::get('/logout', [AuthController::class, 'logout'])->name('chat.logout');
