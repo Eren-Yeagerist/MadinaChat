@@ -26,11 +26,12 @@ class AppServiceProvider extends ServiceProvider
     public function boot()
     {
         view()->composer('*', function ($view) {
-            $notifications = Notification::where('recipient', auth()->user()->id)
+            if (auth()->check()) {
+                $notifications = Notification::where('recipient', auth()->user()->id)
                                 ->where('status', 0)
                                 ->get();
-            // dd($notifications);
-            $view->with('numNotifications', $notifications);
+                $view->with('numNotifications', $notifications);
+            }
         });
     }
 }
