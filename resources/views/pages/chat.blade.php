@@ -5,21 +5,23 @@
         <div class="p-2">
             <h3>| {{ $chat->title }} | <i class="fa-solid fa-comment"></i></h3>
         </div>
-        <div class="p-2">
-            @if ($chat->status()['status'] != 'finished')
-                <form class="form-inline" action="{{ route('user.chat.end', $chat) }}" method="post" enctype="multipart/form-data" onclick="return confirm('Are you sure to end this chat session')">
-                    @csrf 
-                    @method('PUT')
-                    <input type="submit" class="btn btn-danger" value="End chat session">
-                </form>
-                    
-            @endif
+        <div class="p-2 row">
+            <div class="col p-1">
+                <a href="{{ route('chat.chat', $chat) }}" class="btn btn-secondary active position-relative">
+                    Refresh
+                    <span><i class="fa-solid fa-arrows-rotate"></i></span>
+                </a>
+            </div>
 
-            <a href="{{ route('chat.chat', $chat) }}" class="btn btn-secondary active position-relative">
-                Refresh
-                <span><i class="fa-solid fa-arrows-rotate"></i></span>
-            </a>
-
+            <div class="col p-1">
+                @if ($chat->status()['status'] != 'finished')
+                    <form class="form-inline" action="{{ route('user.chat.end', $chat) }}" method="post" enctype="multipart/form-data" onclick="return confirm('Are you sure to end this chat session')">
+                        @csrf 
+                        @method('PUT')
+                        <input type="submit" class="btn btn-danger" value="End chat session">
+                    </form>   
+                @endif
+            </div>
         </div>
     </div>
 
@@ -48,7 +50,7 @@
         @endforeach
     </div>
 
-    <div class="col-md-auto position-absolute bottom-0 w-50 mb-4">
+    <div class="col-md-auto position-relative bottom-0 w-50 mt-2">
         <div class="d-flex justify-content-center">
             @if ($chat->status()['status'] != 'finished')
                 <div class="w-100">
